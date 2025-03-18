@@ -1,0 +1,25 @@
+[package]
+name = "virtual-terminal"
+version = "0.1.0"
+edition = "2021"
+authors = ["Serhij S. <div@altertech.com>"]
+license = "MIT"
+repository = "https://github.com/roboplc/virtual-terminal"
+description = "Virtual terminal"
+readme = "README.md"
+keywords = ["terminal", "tty", "pty", "console"]
+
+
+[dependencies]
+async-channel = "2.3.1"
+bmart = "0.2.11"
+libc = "0.2.171"
+rustix = "1.0.2"
+rustix-openpty = "0.2.0"
+serde = { version = "1.0.219", features = ["derive"] }
+tokio = { version = "1", features = ["rt"] }
+
+[dev-dependencies]
+terminal_size = "0.4.2"
+termios = "0.3.3"
+tokio = { version = "1", features = ["full"] }
