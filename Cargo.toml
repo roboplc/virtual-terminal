@@ -12,7 +12,7 @@ keywords = ["terminal", "tty", "pty", "console"]
 
 [dependencies]
 async-channel = "2.3"
-bmart = "0.2"
+bmart = "^0.2.11"
 libc = "0.2"
 rustix = "1.0"
 rustix-openpty = "0.2"
