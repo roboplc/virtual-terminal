@@ -149,7 +149,6 @@ impl Command {
         self
     }
     /// Run the command
-    #[allow(clippy::too_many_arguments)]
     pub async fn run(self) {
         let out_tx = self.out_tx.clone();
         match self.run_subprocess().await {
@@ -162,7 +161,7 @@ impl Command {
         }
     }
 
-    #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
+    #[allow(clippy::too_many_lines)]
     async fn run_subprocess(
         mut self,
     ) -> Result<Option<i32>, Box<dyn std::error::Error + Send + Sync + 'static>> {
