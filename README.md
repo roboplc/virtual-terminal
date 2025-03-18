@@ -13,5 +13,5 @@ communicate with a program e.g. on a remote machine via custom API/transport.
 ## Issues
 
 While the terminal side is pretty simple to implement, major issues may arise
-from the process side as spawned process may require special input/output
+from the client side as the spawned process may require special input/output
 handling.
