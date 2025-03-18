@@ -1,3 +1,5 @@
+#![deny(missing_docs)]
+#![ doc = include_str!( concat!( env!( "CARGO_MANIFEST_DIR" ), "/", "README.md" ) ) ]
 use libc::TIOCSCTTY;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -10,17 +12,26 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "lowercase")]
+/// Output from the command
 pub enum Output {
+    /// The process id of the command, sent right after the command is started
     Pid(u32),
+    /// Data from the command's stdout/stderr
     Stdout(Vec<u8>),
+    /// Error messages
     Error(String),
+    /// The command has terminated (with an optional exit code)
     Terminated(Option<i32>),
 }
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
+/// Input to the command
 pub enum Input {
+    /// Data to be sent to the command's stdin
     Data(Vec<u8>),
+    /// Resize the virtual terminal
     Resize((usize, usize)),
+    /// Terminate the command
     Terminate,
 }
 
@@ -44,6 +55,7 @@ fn set_term_size(
     Ok(())
 }
 
+/// A command to be run in a virtual terminal
 pub struct Command {
     pid: Option<u32>,
     program: OsString,
@@ -59,6 +71,7 @@ pub struct Command {
 }
 
 impl Command {
+    /// Create a new command
     pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
         let (in_tx, in_rx) = async_channel::bounded(BUF_SIZE);
         let (out_tx, out_rx) = async_channel::bounded(BUF_SIZE);
@@ -76,20 +89,25 @@ impl Command {
             terminal_size: (80, 24),
         }
     }
+    /// Get the sender for sending input to the command
     pub fn in_tx(&self) -> async_channel::Sender<Input> {
         self.in_tx.clone()
     }
+    /// Get the receiver for receiving output from the command
     pub fn out_rx(&self) -> async_channel::Receiver<Output> {
         self.out_rx.clone()
     }
+    /// Set the terminal id
     pub fn terminal_id<S: Into<String>>(mut self, terminal_id: S) -> Self {
         self.terminal_id = terminal_id.into();
         self
     }
+    /// Set the terminal size
     pub fn terminal_size(mut self, terminal_size: (usize, usize)) -> Self {
         self.terminal_size = terminal_size;
         self
     }
+    /// Set the program arguments
     pub fn args<I, S>(mut self, args: I) -> Self
     where
         I: IntoIterator<Item = S>,
@@ -101,10 +119,12 @@ impl Command {
             .collect();
         self
     }
+    /// Add a program argument
     pub fn arg<S: AsRef<OsStr>>(mut self, arg: S) -> Self {
         self.args.push(arg.as_ref().to_os_string());
         self
     }
+    /// Set the environment variables
     pub fn envs<I, K, V>(mut self, env: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -117,15 +137,18 @@ impl Command {
             .collect();
         self
     }
+    /// Add an environment variable
     pub fn env<K: AsRef<OsStr>, V: AsRef<OsStr>>(mut self, key: K, value: V) -> Self {
         self.env
             .insert(key.as_ref().to_os_string(), value.as_ref().to_os_string());
         self
     }
+    /// Set the working directory
     pub fn current_dir<P: AsRef<Path>>(mut self, current_dir: P) -> Self {
         self.current_dir = Some(current_dir.as_ref().to_path_buf());
         self
     }
+    /// Run the command
     #[allow(clippy::too_many_arguments)]
     pub async fn run(self) {
         let out_tx = self.out_tx.clone();
