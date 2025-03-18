@@ -15,3 +15,7 @@ communicate with a program e.g. on a remote machine via custom API/transport.
 While the terminal side is pretty simple to implement, major issues may arise
 from the client side as the spawned process may require special input/output
 handling.
+
+The terminal itself has been tested with the majority of traditional
+complicated programs, such as `vim`, `screen`, `tmux`, `mc` etc. and works
+pretty well.
