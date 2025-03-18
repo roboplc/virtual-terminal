@@ -19,10 +19,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: cargo test default
         run: cargo test --all-targets
-      - name: cargo test locking-rt
-        run: cargo test --no-default-features --all-targets -F locking-rt
-      - name: cargo test locking-rt-safe
-        run: cargo test --no-default-features --all-targets -F locking-rt-safe
   fmt:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +31,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: cargo clippy
         run: |
-          cargo clippy --no-default-features -F locking-rt-safe --all-targets -- -W clippy::all \
+          cargo clippy --all-features --all-targets -- -W clippy::all \
           -W clippy::pedantic \
           -A clippy::used-underscore-binding \
           -A clippy::doc_markdown \
