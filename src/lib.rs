@@ -93,6 +93,10 @@ impl Command {
     pub fn in_tx(&self) -> async_channel::Sender<Input> {
         self.in_tx.clone()
     }
+    /// Get the output sender, useful e.g. to manually send empty output frames to the terminal handler
+    pub fn out_tx(&self) -> async_channel::Sender<Output> {
+        self.out_tx.clone()
+    }
     /// Get the receiver for receiving output from the command
     pub fn out_rx(&self) -> async_channel::Receiver<Output> {
         self.out_rx.clone()
