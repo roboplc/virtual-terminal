@@ -68,6 +68,7 @@ pub struct Command {
     out_rx: async_channel::Receiver<Output>,
     terminal_id: String,
     terminal_size: (usize, usize),
+    shutdown_timeout: Option<Duration>,
 }
 
 impl Command {
@@ -87,6 +88,7 @@ impl Command {
             out_rx,
             terminal_id: "screen-256color".to_string(),
             terminal_size: (80, 24),
+            shutdown_timeout: None,
         }
     }
     /// Get the sender for sending input to the command
@@ -109,6 +111,11 @@ impl Command {
     /// Set the terminal size
     pub fn terminal_size(mut self, terminal_size: (usize, usize)) -> Self {
         self.terminal_size = terminal_size;
+        self
+    }
+    /// Set the shutdown timeout to collect the command output
+    pub fn shutdown_timeout(mut self, timeout: Duration) -> Self {
+        self.shutdown_timeout = Some(timeout);
         self
     }
     /// Set the program arguments
@@ -271,6 +278,8 @@ impl Command {
             }
         });
 
+        let shutdown_timeout = self.shutdown_timeout;
+
         let fut_in = tokio::spawn(async move {
             while let Ok(input) = self.in_rx.recv().await {
                 let mut data = match input {
@@ -299,6 +308,16 @@ impl Command {
         });
 
         let result = child.wait().await?;
+
+        // TODO: fix this
+        if let Some(t) = shutdown_timeout {
+            for _ in 0..10 {
+                if fut_out.is_finished() {
+                    break;
+                }
+                tokio::time::sleep(t / 10).await;
+            }
+        }
 
         fut_out.abort();
         fut_in.abort();
