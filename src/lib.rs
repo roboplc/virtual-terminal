@@ -221,18 +221,12 @@ impl Command {
             builder.pre_exec(move || {
                 let err = libc::setsid();
                 if err == -1 {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        "Failed to set session id",
-                    ));
+                    return Err(std::io::Error::last_os_error());
                 }
 
                 let res = libc::ioctl(slave_fd, TIOCSCTTY as _, 0);
                 if res == -1 {
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        format!("Failed to set controlling terminal: {}", res),
-                    ));
+                    return Err(std::io::Error::last_os_error());
                 }
 
                 libc::close(slave_fd);
